@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \":*)",
+      "Bash(\"c:/Users/fredr/OneDrive/Documents/discovery-os/src/actions/objectives.ts\":*)",
+      "Bash(\"c:/Users/fredr/OneDrive/Documents/discovery-os/src/actions/hypotheses-detail.ts\":*)",
+      "Bash(python3:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\fredr\\OneDrive\\Documents\\discovery-os\\src\\app\\invite"
+    ]
+  }
+}
