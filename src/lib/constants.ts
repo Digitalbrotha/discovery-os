@@ -36,6 +36,8 @@ export const LANE_LABELS: Record<NowNextLater, string> = {
   later: 'Later',
 }
 
-export const STAGES = Object.keys(STAGE_LABELS) as Stage[]
+// assumption_testing is kept in STAGE_LABELS/STAGE_COLORS for backwards compatibility
+// but removed from STAGES so it no longer appears as a selectable column/option
+export const STAGES: Stage[] = ['captured', 'parked', 'solution_exploration', 'validated', 'invalidated']
 export const CONFIDENCES = Object.keys(CONFIDENCE_LABELS) as Confidence[]
 export const LANES = Object.keys(LANE_LABELS) as NowNextLater[]

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { DiscoveryOwlLogo } from './discovery-owl-logo'
 import type { Profile } from '@/types/database'
 
 interface NavProps {
@@ -32,7 +33,7 @@ export default function Nav({ profile, isCompanyAdmin }: NavProps) {
     <header className="border-b border-border bg-background">
       <div className="flex h-14 items-center justify-between px-6">
         <div className="flex items-center gap-6">
-          <span className="text-sm font-semibold">Discovery OS</span>
+          <DiscoveryOwlLogo variant="nav" />
           <nav className="flex items-center gap-1">
             {links.map((link) => (
               <Link

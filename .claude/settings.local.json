@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npm run build)",
-      "Bash(npx tsc --noEmit)"
+      "Bash(npx tsc --noEmit)",
+      "Read(//c/Users/fredr/Downloads/**)",
+      "Bash(ls /c/Users/fredr/OneDrive/Documents/discovery-os/src/app/\\\\\\(app\\\\\\)/tracker/)",
+      "Bash(ls \"c:/Users/fredr/OneDrive/Documents/discovery-os/src/app/\\(app\\)/tracker/\")",
+      "Bash(npm install:*)"
     ]
   }
 }

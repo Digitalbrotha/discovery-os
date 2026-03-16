@@ -4,6 +4,17 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { Stage, Confidence, Persona, ActivityType, ActivityStatus } from '@/types/database'
 
+export async function deleteHypothesis({ hypothesis_id }: { hypothesis_id: string }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthenticated')
+
+  const { error } = await supabase.from('hypotheses').delete().eq('id', hypothesis_id)
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/tracker')
+}
+
 // ============================================================
 // CREATE HYPOTHESIS
 // Used by: UI form, Claude agent (decision 004)

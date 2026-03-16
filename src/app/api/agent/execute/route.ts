@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createHypothesis, moveHypothesisStage, logTestingActivity } from '@/actions/hypotheses'
+import { createSolution, createTestForSolution } from '@/actions/solutions'
 import type { AgentExecuteRequest, AgentExecuteResponse } from '@/types/agent'
 
 export async function POST(request: NextRequest) {
@@ -64,6 +65,20 @@ export async function POST(request: NextRequest) {
           created_by_agent: true,
         })
         message = `Logged ${activity_type.replace('_', ' ')} activity on "${hypothesis_title}"`
+        break
+      }
+
+      case 'create_solution': {
+        const { title, hypothesis_id, hypothesis_title } = action.payload
+        await createSolution({ title, hypothesis_id })
+        message = `Added solution "${title}" under "${hypothesis_title}"`
+        break
+      }
+
+      case 'create_test': {
+        const { description, solution_id, hypothesis_id, solution_title, activity_type } = action.payload
+        await createTestForSolution({ title: description, solution_id, hypothesis_id, activity_type })
+        message = `Added assumption test under "${solution_title}"`
         break
       }
 

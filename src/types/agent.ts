@@ -44,6 +44,27 @@ export interface LogActivityAction {
   }
 }
 
+export interface CreateSolutionAction {
+  type: 'create_solution'
+  payload: {
+    title: string
+    hypothesis_id: string
+    hypothesis_title: string // for display in preview
+  }
+}
+
+export interface CreateTestAction {
+  type: 'create_test'
+  payload: {
+    description: string
+    solution_id: string
+    solution_title: string  // for display in preview
+    hypothesis_id: string
+    hypothesis_title: string // for display in preview
+    activity_type?: string
+  }
+}
+
 export interface UnknownAction {
   type: 'unknown'
   payload: {
@@ -55,6 +76,8 @@ export type AgentAction =
   | CreateHypothesisAction
   | MoveStageAction
   | LogActivityAction
+  | CreateSolutionAction
+  | CreateTestAction
   | UnknownAction
 
 // ── API request / response shapes ────────────────────────────

@@ -8,7 +8,7 @@ import { Select } from '@/components/shared/select'
 import { updateProfile, inviteToTeam, revokeTeamInvite, removeTeamMember, updateTeamMemberRole } from '@/actions/company'
 import type { Profile } from '@/types/database'
 
-type Tab = 'profile' | 'teams'
+type Tab = 'profile' | 'teams' | 'integrations'
 
 const ROLE_OPTIONS = [
   { value: 'pm',       label: 'Product Manager' },
@@ -52,7 +52,7 @@ export function SettingsClient({ profile, teams, currentUserId, isCompanyAdmin, 
       </div>
 
       <div className="flex gap-1 border-b border-border-soft mb-6">
-        {(['profile', 'teams'] as Tab[]).map(t => (
+        {(['profile', 'teams', 'integrations'] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)} className={cn('px-3 py-2 text-[13px] font-medium capitalize transition-colors border-b-2 -mb-px', tab === t ? 'border-text-primary text-text-primary' : 'border-transparent text-text-3 hover:text-text-2')}>
             {t}
           </button>
@@ -61,6 +61,7 @@ export function SettingsClient({ profile, teams, currentUserId, isCompanyAdmin, 
 
       {tab === 'profile' && <ProfileTab profile={profile} onSaved={refresh} />}
       {tab === 'teams' && <TeamsTab teams={teams} currentUserId={currentUserId} onSaved={refresh} />}
+      {tab === 'integrations' && <IntegrationsTab />}
     </div>
   )
 }
@@ -194,6 +195,146 @@ function TeamsTab({ teams, currentUserId, onSaved }: { teams: TeamData[]; curren
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+// ── Integrations tab ──────────────────────────────────────────
+
+const MCP_CONFIG = `{
+  "mcpServers": {
+    "discoveryowl": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--read-only"
+      ],
+      "env": {
+        "SUPABASE_URL": "YOUR_SUPABASE_PROJECT_URL",
+        "SUPABASE_SERVICE_ROLE_KEY": "YOUR_SERVICE_ROLE_KEY"
+      }
+    }
+  }
+}`
+
+function IntegrationsTab() {
+  const [copied, setCopied] = useState(false)
+
+  function copy() {
+    navigator.clipboard.writeText(MCP_CONFIG)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Intro card */}
+      <div className="bg-surface border border-border-soft rounded-xl p-5 space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="text-base">✦</span>
+          <p className="text-[13px] font-semibold text-text-primary">Connect DiscoveryOwl to Claude Code</p>
+        </div>
+        <p className="text-[12px] text-text-2 leading-relaxed">
+          By adding DiscoveryOwl as an MCP server, Claude Code can read and update your opportunities,
+          solutions, and assumption tests directly from your terminal — no copy-pasting needed.
+        </p>
+      </div>
+
+      {/* Steps */}
+      <div className="bg-surface border border-border-soft rounded-xl p-5 space-y-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-text-3">Setup steps</p>
+
+        {/* Step 1 */}
+        <Step number={1} title="Get your Supabase credentials">
+          <p className="text-[12px] text-text-2 leading-relaxed">
+            Open your{' '}
+            <span className="font-medium text-text-primary">Supabase project dashboard</span>
+            {' '}→ <span className="font-mono text-[11px] bg-surface-2 px-1 py-0.5 rounded">Settings → API</span>.
+            You need two values:
+          </p>
+          <ul className="mt-2 space-y-1 text-[12px] text-text-2">
+            <li className="flex items-start gap-2">
+              <span className="text-text-3 mt-0.5">·</span>
+              <span><span className="font-mono text-[11px] bg-surface-2 px-1 py-0.5 rounded">Project URL</span> — looks like <span className="font-mono text-[11px] text-text-3">https://xxxx.supabase.co</span></span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-text-3 mt-0.5">·</span>
+              <span><span className="font-mono text-[11px] bg-surface-2 px-1 py-0.5 rounded">service_role</span> key — under "Project API keys" (keep this secret)</span>
+            </li>
+          </ul>
+        </Step>
+
+        {/* Step 2 */}
+        <Step number={2} title="Create or update your MCP config file">
+          <p className="text-[12px] text-text-2 leading-relaxed mb-3">
+            Add the block below to <span className="font-mono text-[11px] bg-surface-2 px-1 py-0.5 rounded">~/.claude.json</span> (global, works in any project) or <span className="font-mono text-[11px] bg-surface-2 px-1 py-0.5 rounded">.mcp.json</span> in your project root.
+            Replace the two placeholder values with your credentials from step 1.
+          </p>
+          <div className="relative">
+            <pre className="bg-[#101c28] text-[11px] font-mono text-[#a8c8f0] rounded-lg px-4 py-3.5 overflow-x-auto leading-relaxed whitespace-pre">
+              {MCP_CONFIG}
+            </pre>
+            <button
+              onClick={copy}
+              className="absolute top-2.5 right-2.5 text-[10px] font-medium px-2 py-1 rounded bg-white/10 text-white/60 hover:bg-white/20 hover:text-white/90 transition-colors"
+            >
+              {copied ? '✓ Copied' : 'Copy'}
+            </button>
+          </div>
+        </Step>
+
+        {/* Step 3 */}
+        <Step number={3} title="Restart Claude Code and verify">
+          <p className="text-[12px] text-text-2 leading-relaxed">
+            Restart Claude Code, then run <span className="font-mono text-[11px] bg-surface-2 px-1 py-0.5 rounded">/mcp</span> in any conversation to confirm the <span className="font-mono text-[11px] bg-surface-2 px-1 py-0.5 rounded">discoveryowl</span> server is listed and connected.
+          </p>
+        </Step>
+
+        {/* Step 4 */}
+        <Step number={4} title="Start using it">
+          <p className="text-[12px] text-text-2 leading-relaxed mb-2">
+            Once connected, you can ask Claude Code things like:
+          </p>
+          <div className="space-y-1.5">
+            {[
+              'List all opportunities in the tracker',
+              'Add a solution called "Onboarding checklist" under the activation opportunity',
+              'Mark the drop-off interview test as done',
+              'Show me all assumption tests that are still planned',
+            ].map((ex) => (
+              <div key={ex} className="flex items-start gap-2 text-[12px]">
+                <span className="text-text-3 shrink-0 mt-0.5">✦</span>
+                <span className="text-text-2 italic">"{ex}"</span>
+              </div>
+            ))}
+          </div>
+        </Step>
+      </div>
+
+      {/* Note */}
+      <div className="flex items-start gap-2.5 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
+        <span className="text-amber-600 text-[12px] mt-0.5 shrink-0">⚠</span>
+        <p className="text-[12px] text-amber-800 leading-relaxed">
+          The <span className="font-mono text-[11px]">service_role</span> key bypasses row-level security.
+          Never commit it to version control or share it. Use <span className="font-mono text-[11px]">--read-only</span> in the args above to prevent accidental writes.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function Step({ number, title, children }: { number: number; title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex gap-3.5">
+      <div className="w-5 h-5 rounded-full bg-text-primary text-background text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+        {number}
+      </div>
+      <div className="flex-1 min-w-0 space-y-1.5">
+        <p className="text-[12px] font-semibold text-text-primary">{title}</p>
+        {children}
+      </div>
     </div>
   )
 }

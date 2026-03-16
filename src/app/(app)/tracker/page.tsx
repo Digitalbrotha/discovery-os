@@ -8,16 +8,19 @@ export default async function TrackerPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Get the user's team (first membership)
+  // Get the user's team (first membership) — join company through team
   const { data: membership } = await supabase
     .from('team_members')
-    .select('team_id, team:teams(id, name)')
+    .select('team_id, team:teams(id, name, company:companies(id, name))')
     .eq('user_id', user.id)
     .order('joined_at')
     .limit(1)
     .single()
 
-  const teamId = membership?.team_id ?? null
+  const teamId      = membership?.team_id ?? null
+  const team        = membership?.team as { name?: string; company?: { name?: string } | null } | null
+  const teamName    = team?.name ?? null
+  const companyName = team?.company?.name ?? null
 
   const [
     { data: hypotheses },
@@ -27,7 +30,16 @@ export default async function TrackerPage() {
     teamId
       ? supabase
           .from('hypotheses')
-          .select(`*, owner:profiles!hypotheses_owner_id_fkey (id, full_name, role)`)
+          .select(`
+            *,
+            owner:profiles!hypotheses_owner_id_fkey(id, full_name, role),
+            hypothesis_solutions(
+              solutions(
+                id, title, description, stage, created_at,
+                testing_activities(id, activity_type, description, status, owner_id, created_at)
+              )
+            )
+          `)
           .eq('team_id', teamId)
           .order('created_at', { ascending: false })
       : Promise.resolve({ data: [] }),
@@ -59,6 +71,8 @@ export default async function TrackerPage() {
       teamMembers={teamMembers}
       currentUserId={user.id}
       teamId={teamId ?? ''}
+      teamName={teamName}
+      companyName={companyName}
     />
   )
 }

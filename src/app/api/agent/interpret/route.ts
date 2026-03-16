@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
   const [
     { data: hypotheses },
     { data: objectives },
+    { data: rawSolutions },
   ] = await Promise.all([
     supabase
       .from('hypotheses')
@@ -29,31 +30,51 @@ export async function POST(request: NextRequest) {
       .from('objectives')
       .select('id, title')
       .eq('status', 'active'),
+    supabase
+      .from('hypothesis_solutions')
+      .select('hypothesis_id, solutions(id, title, stage)')
+      .limit(100),
   ])
+
+  // Flatten solutions with their parent hypothesis_id
+  const solutions = (rawSolutions ?? []).map((row: {
+    hypothesis_id: string
+    solutions: { id: string; title: string; stage: string } | null
+  }) => ({
+    solution_id: row.solutions?.id,
+    solution_title: row.solutions?.title,
+    solution_stage: row.solutions?.stage,
+    hypothesis_id: row.hypothesis_id,
+  })).filter((s) => s.solution_id)
 
   const systemPrompt = `You are an AI assistant for a product discovery OS used by product trios.
 Your job is to interpret a natural language prompt from the user and return a single structured action as JSON.
 
-You can only perform these three actions:
-1. create_hypothesis — create a new hypothesis
+You can perform these five actions:
+1. create_hypothesis — create a new opportunity/hypothesis
 2. move_stage — move a hypothesis to a different stage
-3. log_activity — log a testing activity against a hypothesis
+3. log_activity — log a testing activity directly against a hypothesis (old-style, no solution)
+4. create_solution — add a solution under an existing opportunity/hypothesis
+5. create_test — add an assumption test under an existing solution
 
 Hypothesis stages are exactly: captured, assumption_testing, solution_exploration, validated, invalidated, parked
 Confidence levels are exactly: low, medium, high
 Activity types are exactly: interview, survey, observation, data_analysis, prototype_test, feasibility_check, other
 Activity statuses are exactly: planned, in_progress, done
 
-Here are the current hypotheses in the system (use these to resolve references):
+Here are the current hypotheses/opportunities in the system:
 ${JSON.stringify(hypotheses ?? [], null, 2)}
 
-Here are the current active objectives (use these to resolve references):
+Here are the current solutions (each includes the hypothesis_id it belongs to):
+${JSON.stringify(solutions, null, 2)}
+
+Here are the current active objectives:
 ${JSON.stringify(objectives ?? [], null, 2)}
 
 Return ONLY a valid JSON object with this exact shape — no markdown, no explanation, just JSON:
 {
   "action": {
-    "type": "create_hypothesis" | "move_stage" | "log_activity" | "unknown",
+    "type": "create_hypothesis" | "move_stage" | "log_activity" | "create_solution" | "create_test" | "unknown",
     "payload": { ... }
   },
   "explanation": "One sentence describing what you understood"
@@ -68,10 +89,18 @@ For move_stage payload:
 For log_activity payload:
 { "hypothesis_id": string, "hypothesis_title": string, "activity_type": ActivityType, "description"?: string, "learning"?: string, "status": ActivityStatus }
 
+For create_solution payload:
+{ "title": string, "hypothesis_id": string, "hypothesis_title": string }
+
+For create_test payload:
+{ "description": string, "solution_id": string, "solution_title": string, "hypothesis_id": string, "hypothesis_title": string, "activity_type"?: ActivityType }
+
 For unknown payload:
 { "reason": string }
 
-If you cannot confidently map the prompt to one of the three actions, or cannot find the hypothesis being referenced, return type "unknown" with a clear reason.`
+When the user says "add a solution to [opportunity]" or similar, use create_solution.
+When the user says "add a test to [solution]" or "add an assumption test under [solution]", use create_test.
+If you cannot confidently map the prompt to one of the five actions, return type "unknown" with a clear reason.`
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {

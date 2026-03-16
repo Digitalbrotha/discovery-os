@@ -148,6 +148,7 @@ export interface HypothesisSolution {
 export interface TestingActivity {
   id: string
   hypothesis_id: string
+  solution_id: string | null
   activity_type: ActivityType
   description: string | null
   learning: string | null

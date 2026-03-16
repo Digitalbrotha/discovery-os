@@ -42,6 +42,12 @@ export function AgentActionPreview({
         {action.type === 'log_activity' && (
           <LogActivityPreview action={action} />
         )}
+        {action.type === 'create_solution' && (
+          <CreateSolutionPreview action={action} />
+        )}
+        {action.type === 'create_test' && (
+          <CreateTestPreview action={action} />
+        )}
         {action.type === 'unknown' && (
           <UnknownPreview action={action} />
         )}
@@ -180,6 +186,56 @@ function LogActivityPreview({ action }: { action: Extract<AgentAction, { type: '
       {learning && (
         <PreviewRow label="Learning">
           <span className="text-[12px] text-text-primary leading-relaxed">{learning}</span>
+        </PreviewRow>
+      )}
+    </div>
+  )
+}
+
+// ── Create solution preview ───────────────────────────────────
+
+function CreateSolutionPreview({ action }: { action: Extract<AgentAction, { type: 'create_solution' }> }) {
+  const { title, hypothesis_title } = action.payload
+  return (
+    <div className="space-y-2.5">
+      <PreviewRow label="Action">
+        <span className="text-[11px] font-medium text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded-sm">
+          Create solution
+        </span>
+      </PreviewRow>
+      <PreviewRow label="Title">
+        <span className="text-[13px] font-medium text-text-primary">{title}</span>
+      </PreviewRow>
+      <PreviewRow label="Under">
+        <span className="text-[12px] text-text-2">{hypothesis_title}</span>
+      </PreviewRow>
+    </div>
+  )
+}
+
+// ── Create test preview ───────────────────────────────────────
+
+function CreateTestPreview({ action }: { action: Extract<AgentAction, { type: 'create_test' }> }) {
+  const { description, solution_title, hypothesis_title, activity_type } = action.payload
+  return (
+    <div className="space-y-2.5">
+      <PreviewRow label="Action">
+        <span className="text-[11px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-sm">
+          Create assumption test
+        </span>
+      </PreviewRow>
+      <PreviewRow label="Description">
+        <span className="text-[13px] font-medium text-text-primary">{description}</span>
+      </PreviewRow>
+      <PreviewRow label="Solution">
+        <span className="text-[12px] text-text-2">{solution_title}</span>
+      </PreviewRow>
+      <PreviewRow label="Opportunity">
+        <span className="text-[12px] text-text-3">{hypothesis_title}</span>
+      </PreviewRow>
+      {activity_type && (
+        <PreviewRow label="Type">
+          <span className="text-[12px] text-text-2 capitalize">{activity_type.replace('_', ' ')}</span>
         </PreviewRow>
       )}
     </div>

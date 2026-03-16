@@ -16,7 +16,7 @@ const dmMono = DM_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Discovery OS',
+  title: 'DiscoveryOwl',
   description: 'Continuous discovery for product trios',
 }
 

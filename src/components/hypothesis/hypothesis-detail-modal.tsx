@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils'
 import { STAGE_LABELS, CONFIDENCE_LABELS, STAGES, CONFIDENCES } from '@/lib/constants'
 import { StageBadge, ConfidenceBadge, AIBadge } from '@/components/shared/badges'
-import { moveHypothesisStage, logTestingActivity } from '@/actions/hypotheses'
+import { moveHypothesisStage, logTestingActivity, deleteHypothesis } from '@/actions/hypotheses'
 import { updateHypothesisDetail } from '@/actions/hypotheses-detail'
 import { connectHypothesisToObjective, disconnectHypothesisFromObjective } from '@/actions/objectives'
 import type {
@@ -24,6 +24,7 @@ interface HypothesisDetailModalProps {
   hypothesis: HypothesisWithOwner | null
   open: boolean
   onClose: () => void
+  onDeleted?: (id: string) => void
   activities: TestingActivity[]
   stageHistory: StageHistory[]
   objectives: Pick<Objective, 'id' | 'title'>[]
@@ -39,6 +40,7 @@ export function HypothesisDetailModal({
   hypothesis,
   open,
   onClose,
+  onDeleted,
   activities: initialActivities,
   stageHistory,
   objectives,
@@ -49,11 +51,13 @@ export function HypothesisDetailModal({
   const [activities, setActivities] = useState(initialActivities)
   const [connectedObjectiveIds, setConnectedObjectiveIds] = useState(initialConnectedObjectiveIds)
   const [isPending, startTransition] = useTransition()
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   // Sync when hypothesis changes
   useEffect(() => {
     setActivities(initialActivities)
     setConnectedObjectiveIds(initialConnectedObjectiveIds)
+    setConfirmDelete(false)
   }, [initialActivities, initialConnectedObjectiveIds])
 
   // Close on Escape
@@ -227,14 +231,37 @@ export function HypothesisDetailModal({
           </div>
 
           {/* ── Footer ── */}
-          <div className="px-5 py-3 border-t border-border-soft shrink-0 flex items-center justify-between">
-            <span className="font-mono text-[10px] text-text-3">
-              Created {new Date(hypothesis.created_at).toLocaleDateString('en-US', {
-                month: 'short', day: 'numeric', year: 'numeric',
-              })}
-            </span>
-            {isPending && (
-              <span className="text-[11px] text-text-3 animate-pulse">Saving…</span>
+          <div className="px-5 py-3 border-t border-border-soft shrink-0">
+            {confirmDelete ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+                <p className="text-[13px] text-red-700 font-medium mb-2.5">Are you sure you want to delete this opportunity?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => startTransition(async () => {
+                      await deleteHypothesis({ hypothesis_id: hypothesis.id })
+                      onDeleted?.(hypothesis.id)
+                      onClose()
+                    })}
+                    disabled={isPending}
+                    className="px-3.5 py-1.5 text-[13px] font-medium bg-red-600 text-white rounded-md hover:bg-red-500 disabled:opacity-40 transition-colors"
+                  >
+                    {isPending ? 'Deleting…' : 'Yes, delete'}
+                  </button>
+                  <button onClick={() => setConfirmDelete(false)} className="px-3.5 py-1.5 text-[13px] font-medium text-text-2 border border-border rounded-md hover:border-text-3 transition-colors">Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <button onClick={() => setConfirmDelete(true)} className="text-[13px] text-red-500 hover:text-red-600 transition-colors">Delete</button>
+                <span className="font-mono text-[10px] text-text-3">
+                  Created {new Date(hypothesis.created_at).toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric', year: 'numeric',
+                  })}
+                </span>
+                {isPending && (
+                  <span className="text-[11px] text-text-3 animate-pulse">Saving…</span>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -449,7 +476,7 @@ const ACTIVITY_TYPES = [
   { value: 'data_analysis',     label: 'Data analysis' },
   { value: 'prototype_test',    label: 'Prototype test' },
   { value: 'feasibility_check', label: 'Feasibility check' },
-  { value: 'other',             label: 'Other' },
+  { value: 'other',             label: 'Type not set' },
 ]
 
 interface ActivitiesTabProps {
