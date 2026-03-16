@@ -46,6 +46,18 @@ export default function LoginForm({ next }: { next?: string }) {
     router.refresh()
   }
 
+  async function handleDemo() {
+    const demoEmail    = process.env.NEXT_PUBLIC_DEMO_EMAIL
+    const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD
+    if (!demoEmail || !demoPassword) return
+    setLoading(true)
+    setError(null)
+    const { error } = await supabase.auth.signInWithPassword({ email: demoEmail, password: demoPassword })
+    if (error) { setError(error.message); setLoading(false); return }
+    router.push('/tracker')
+    router.refresh()
+  }
+
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
@@ -225,7 +237,7 @@ export default function LoginForm({ next }: { next?: string }) {
       </button>
 
       <p className="text-center text-sm text-muted-foreground">
-        New to Discovery OS?{' '}
+        New to DiscoveryOwl?{' '}
         <button
           type="button"
           onClick={() => switchMode('signup')}
@@ -234,6 +246,27 @@ export default function LoginForm({ next }: { next?: string }) {
           Create account
         </button>
       </p>
+
+      {process.env.NEXT_PUBLIC_DEMO_EMAIL && (
+        <>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-background px-2 text-[11px] text-muted-foreground">or</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleDemo}
+            disabled={loading}
+            className="w-full rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground hover:border-text-3 hover:text-foreground disabled:opacity-50 transition-colors"
+          >
+            {loading ? 'Loading…' : '▶ View demo'}
+          </button>
+        </>
+      )}
     </form>
   )
 }
