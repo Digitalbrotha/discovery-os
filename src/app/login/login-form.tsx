@@ -261,9 +261,22 @@ export default function LoginForm({ next }: { next?: string }) {
             type="button"
             onClick={handleDemo}
             disabled={loading}
-            className="w-full rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground hover:border-text-3 hover:text-foreground disabled:opacity-50 transition-colors"
+            className="relative w-full overflow-hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+            style={{
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 40%, #b45309 100%)',
+              boxShadow: '0 0 18px rgba(245,158,11,0.45), 0 2px 8px rgba(0,0,0,0.15)',
+            }}
           >
-            {loading ? 'Loading…' : '▶ View demo'}
+            {/* shimmer sweep */}
+            <span
+              className="pointer-events-none absolute inset-0 -translate-x-full animate-[shimmer_2.2s_infinite] bg-gradient-to-r from-transparent via-white/25 to-transparent"
+              style={{ animationTimingFunction: 'linear' }}
+            />
+            <span className="relative flex items-center justify-center gap-2">
+              <span className="text-base leading-none">✦</span>
+              {loading ? 'Loading…' : 'View demo'}
+              <span className="text-base leading-none">✦</span>
+            </span>
           </button>
         </>
       )}
