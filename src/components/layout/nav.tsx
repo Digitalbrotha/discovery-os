@@ -22,16 +22,16 @@ export default function Nav({ profile, isCompanyAdmin }: NavProps) {
 
   return (
     <header className="border-b border-border bg-background">
-      <div className="flex h-14 items-center justify-between px-6">
+      <div className="flex h-14 items-center justify-between px-4 sm:px-6 overflow-x-auto">
         <div className="flex items-center gap-6">
           <DiscoveryOwlLogo variant="nav" />
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-0.5">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 title={link.label === '⚙' ? 'Settings' : undefined}
-                className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+                className={`rounded-md px-2.5 py-1.5 text-sm transition-colors whitespace-nowrap ${
                   pathname.startsWith(link.href)
                     ? 'bg-accent text-accent-foreground font-medium'
                     : 'text-muted-foreground hover:text-foreground'

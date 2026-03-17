@@ -28,7 +28,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen flex-col">
       <Nav profile={profile} isCompanyAdmin={isCompanyAdmin} />
-      <main className="flex-1 px-6 py-8">{children}</main>
+      <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 max-w-full overflow-x-hidden">{children}</main>
     </div>
   )
 }
