@@ -484,15 +484,17 @@ function CardTypesLegend() {
         <div
           key={t.label}
           className={cn(
-            'flex-1 flex items-start gap-3 rounded-lg border px-3.5 py-2.5 border-l-[3px]',
+            'group relative flex-1 flex items-center gap-3 rounded-lg border px-3.5 py-2.5 border-l-[3px]',
             t.bg,
             t.borderAccent,
           )}
         >
-          <span className={cn('text-base leading-none mt-0.5 shrink-0', t.iconColor)}>{t.icon}</span>
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold text-text-primary tracking-[-0.01em]">{t.label}</p>
-            <p className="text-[11px] text-text-3 mt-0.5 leading-snug">{t.description}</p>
+          <span className={cn('text-base leading-none shrink-0', t.iconColor)}>{t.icon}</span>
+          <p className="text-[11px] font-semibold text-text-primary tracking-[-0.01em]">{t.label}</p>
+
+          {/* Tooltip on hover */}
+          <div className="pointer-events-none absolute left-0 top-full mt-1.5 z-10 w-52 rounded-lg border border-border bg-surface shadow-card px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+            <p className="text-[11px] text-text-3 leading-snug">{t.description}</p>
           </div>
         </div>
       ))}
