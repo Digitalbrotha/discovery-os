@@ -243,6 +243,10 @@ function buildMarkdown(
     lines.push(`- **Confidence:** ${h.confidence}`)
     lines.push(`- **Owner:** ${owner}`)
     if (h.statement) lines.push(`- **Statement:** ${h.statement}`)
+    lines.push(`- **Habit driver:** ${h.habit_driver ? 'Yes' : 'No'}`)
+    if (h.habit_driver && h.habit_driver_type && h.habit_driver_type !== 'None') {
+      lines.push(`- **Habit type:** ${h.habit_driver_type}`)
+    }
     lines.push('')
 
     if (solutions.length === 0) {

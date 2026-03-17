@@ -198,8 +198,17 @@ function SolutionNode({
     const title = newTitle.trim()
     if (!title) return
     startTransition(async () => {
-      const test = await createTestForSolution({ title, solution_id: solution.id, hypothesis_id: hypothesisId })
-      setTests((prev) => [...prev, test as OSTTest])
+      await createTestForSolution({ title, solution_id: solution.id, hypothesis_id: hypothesisId })
+      const optimistic: OSTTest = {
+        id: crypto.randomUUID(),
+        description: title,
+        activity_type: 'other',
+        status: 'planned',
+        owner_id: null,
+        reference_url: null,
+        created_at: new Date().toISOString(),
+      }
+      setTests((prev) => [...prev, optimistic])
       setNewTitle('')
       setShowAdd(false)
     })
