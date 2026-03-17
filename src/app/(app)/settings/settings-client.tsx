@@ -313,14 +313,6 @@ function IntegrationsTab() {
         </Step>
       </div>
 
-      {/* Note */}
-      <div className="flex items-start gap-2.5 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg">
-        <span className="text-amber-600 text-[12px] mt-0.5 shrink-0">⚠</span>
-        <p className="text-[12px] text-amber-800 leading-relaxed">
-          The <span className="font-mono text-[11px]">service_role</span> key bypasses row-level security.
-          Never commit it to version control or share it. Use <span className="font-mono text-[11px]">--read-only</span> in the args above to prevent accidental writes.
-        </p>
-      </div>
     </div>
   )
 }
