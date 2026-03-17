@@ -183,7 +183,7 @@ export function TestBoard({ tests, teamMembers = [] }: { tests: TestCardData[]; 
   if (tests.length === 0) {
     return (
       <div className="py-16 text-center text-[13px] text-text-3">
-        No assumption tests yet. Add them via the Tree view.
+        No assumptions yet. Add them via the Tree view.
       </div>
     )
   }
@@ -413,7 +413,7 @@ function TestDetailModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border-soft">
-          <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-text-primary">Assumption test</h2>
+          <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-text-primary">Assumption</h2>
           <button onClick={onClose} className="text-text-3 hover:text-text-2 transition-colors text-lg leading-none">×</button>
         </div>
 

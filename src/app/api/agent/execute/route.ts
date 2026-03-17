@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       case 'create_test': {
         const { description, solution_id, hypothesis_id, solution_title, activity_type } = action.payload
         await createTestForSolution({ title: description, solution_id, hypothesis_id, activity_type })
-        message = `Added assumption test under "${solution_title}"`
+        message = `Added assumption under "${solution_title}"`
         break
       }
 

@@ -221,7 +221,7 @@ function CreateTestPreview({ action }: { action: Extract<AgentAction, { type: 'c
     <div className="space-y-2.5">
       <PreviewRow label="Action">
         <span className="text-[11px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-sm">
-          Create assumption test
+          Create assumption
         </span>
       </PreviewRow>
       <PreviewRow label="Description">

@@ -594,7 +594,7 @@ export function GraphView({ hypotheses }: { hypotheses: HypothesisOST[] }) {
         {([
           ['#f5c842', '✦', 'Opportunity'],
           ['#7bc5f8', '◆', 'Solution'],
-          ['#22d3ee', '⬡', 'Assumption test'],
+          ['#22d3ee', '⬡', 'Assumption'],
         ] as const).map(([color, icon, label]) => (
           <div key={label} className="flex items-center gap-2">
             <span style={{ color }} className="text-sm leading-none">{icon}</span>

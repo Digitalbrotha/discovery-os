@@ -240,7 +240,7 @@ function SolutionNode({
             <div className="flex items-center gap-2 ml-4">
               <input autoFocus value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleAddTest(); if (e.key === 'Escape') { setShowAdd(false); setNewTitle('') } }}
-                placeholder="Assumption test…"
+                placeholder="Assumption…"
                 className="flex-1 bg-surface border border-border rounded-md px-2.5 py-1.5 text-[12px] text-text-primary placeholder:text-text-3 focus:outline-none focus:border-amber-400 transition-colors"
               />
               <button onClick={handleAddTest} disabled={!newTitle.trim() || isPending} className="px-3 py-1.5 text-[12px] font-medium bg-amber-500 text-white rounded-md hover:bg-amber-400 disabled:opacity-40 transition-colors">Add</button>
@@ -248,7 +248,7 @@ function SolutionNode({
             </div>
           ) : (
             <button onClick={() => setShowAdd(true)} className="flex items-center gap-1 text-[11px] text-text-3 hover:text-amber-600 transition-colors ml-4 py-0.5">
-              <Plus className="w-3 h-3" /> Add assumption test
+              <Plus className="w-3 h-3" /> Add assumption
             </button>
           )}
         </div>
@@ -476,7 +476,7 @@ function TestEditModal({
       <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
       <div className="relative w-full max-w-lg bg-surface rounded-xl border border-border shadow-card-hover" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border-soft">
-          <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-text-primary">Edit assumption test</h2>
+          <h2 className="text-[15px] font-semibold tracking-[-0.02em] text-text-primary">Edit assumption</h2>
           <button onClick={onClose} className="text-text-3 hover:text-text-2 transition-colors text-lg leading-none">×</button>
         </div>
         <div className="px-5 pt-3 flex items-center gap-1.5 text-[11px] text-text-3">
@@ -518,7 +518,7 @@ function TestEditModal({
         </div>
         {confirmDelete ? (
           <div className="mx-5 mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-            <p className="text-[13px] text-red-700 font-medium mb-2.5">Are you sure you want to delete this assumption test?</p>
+            <p className="text-[13px] text-red-700 font-medium mb-2.5">Are you sure you want to delete this assumption?</p>
             <div className="flex gap-2">
               <button onClick={handleDelete} disabled={isPending} className="px-3.5 py-1.5 text-[13px] font-medium bg-red-600 text-white rounded-md hover:bg-red-500 disabled:opacity-40 transition-colors">
                 {isPending ? 'Deleting…' : 'Yes, delete'}

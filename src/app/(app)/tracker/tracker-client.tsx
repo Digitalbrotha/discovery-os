@@ -468,7 +468,7 @@ const CARD_TYPES = [
     description: 'A proposed way to address an opportunity — tracked through stages.',
   },
   {
-    label: 'Assumption test',
+    label: 'Assumption',
     icon: '⬡',
     iconColor: 'text-amber-500',
     bg: 'bg-amber-50 border-amber-200',
