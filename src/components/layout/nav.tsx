@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { usePathname } from 'next/navigation'
 import { DiscoveryOwlLogo } from './discovery-owl-logo'
 import type { Profile } from '@/types/database'
 
@@ -13,8 +12,6 @@ interface NavProps {
 
 export default function Nav({ profile, isCompanyAdmin }: NavProps) {
   const pathname = usePathname()
-  const router = useRouter()
-  const supabase = createClient()
 
   const links = [
     { href: '/tracker',  label: 'Tracker' },
@@ -22,12 +19,6 @@ export default function Nav({ profile, isCompanyAdmin }: NavProps) {
     ...(isCompanyAdmin ? [{ href: '/company', label: 'Company' }] : []),
     { href: '/settings', label: '⚙' },
   ]
-
-  async function handleSignOut() {
-    await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
-  }
 
   return (
     <header className="border-b border-border bg-background">
@@ -62,9 +53,6 @@ export default function Nav({ profile, isCompanyAdmin }: NavProps) {
               )}
             </span>
           )}
-          <button onClick={handleSignOut} className="text-xs text-muted-foreground hover:text-foreground">
-            Sign out
-          </button>
         </div>
       </div>
     </header>

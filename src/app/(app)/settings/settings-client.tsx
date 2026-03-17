@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { Select } from '@/components/shared/select'
@@ -37,6 +38,13 @@ export function SettingsClient({ profile, teams, currentUserId, isCompanyAdmin, 
   const router = useRouter()
   const refresh = () => router.refresh()
 
+  async function handleSignOut() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -62,6 +70,16 @@ export function SettingsClient({ profile, teams, currentUserId, isCompanyAdmin, 
       {tab === 'profile' && <ProfileTab profile={profile} onSaved={refresh} />}
       {tab === 'teams' && <TeamsTab teams={teams} currentUserId={currentUserId} onSaved={refresh} />}
       {tab === 'integrations' && <IntegrationsTab />}
+
+      {/* Sign out */}
+      <div className="mt-10 pb-6 flex justify-center">
+        <button
+          onClick={handleSignOut}
+          className="text-[12px] text-text-3 hover:text-stage-invalid-fg transition-colors"
+        >
+          Sign out
+        </button>
+      </div>
     </div>
   )
 }
