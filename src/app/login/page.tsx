@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import LoginForm from './login-form'
 import { DiscoveryOwlLogo } from '@/components/layout/discovery-owl-logo'
+import { WaitlistButton } from '@/components/shared/waitlist-button'
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const supabase = await createClient()
@@ -31,6 +32,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </p>
         </div>
         <LoginForm next={next} />
+        <div className="flex justify-center pt-2">
+          <WaitlistButton />
+        </div>
       </div>
     </main>
   )

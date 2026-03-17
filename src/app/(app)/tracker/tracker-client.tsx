@@ -7,6 +7,7 @@ const OSTView = dynamic(() => import('@/components/hypothesis/ost-view').then(m 
 const TestBoard = dynamic(() => import('@/components/hypothesis/test-board').then(m => m.TestBoard), { ssr: false })
 const GraphView = dynamic(() => import('@/components/hypothesis/graph-view').then(m => m.GraphView), { ssr: false })
 import { PromptBar } from '@/components/hypothesis/prompt-bar'
+import { WaitlistButton } from '@/components/shared/waitlist-button'
 import { NewHypothesisModal } from '@/components/hypothesis/new-hypothesis-modal'
 import { HypothesisDetailModal } from '@/components/hypothesis/hypothesis-detail-modal'
 import { fetchHypothesisDetail } from '@/actions/hypotheses-detail'
@@ -78,10 +79,7 @@ export function TrackerClient({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="px-3 py-1.5 border border-border rounded-md text-[12px] font-medium text-text-2 hover:border-text-3 hover:text-text-primary transition-colors">
-            Filter
-          </button>
-          <button
+<button
             onClick={() => setModalOpen(true)}
             className="px-3.5 py-1.5 bg-text-primary text-background rounded-md text-[13px] font-medium tracking-[-0.01em] hover:opacity-85 transition-opacity"
           >
@@ -156,6 +154,11 @@ export function TrackerClient({
 
       {/* Agent prompt bar */}
       <PromptBar className="mt-6" />
+
+      {/* Waitlist */}
+      <div className="mt-6 flex justify-center">
+        <WaitlistButton />
+      </div>
 
       {/* New hypothesis modal */}
       <NewHypothesisModal
