@@ -16,7 +16,7 @@ import type { HypothesisWithOwner, Objective, TestingActivity, StageHistory } fr
 import type { HypothesisOST } from '@/components/hypothesis/ost-view'
 import type { TestCardData } from '@/components/hypothesis/test-board'
 
-type View = 'tree' | 'board' | 'list' | '3d'
+type View = 'tree' | 'board' | '3d'
 
 interface TrackerClientProps {
   hypotheses: HypothesisWithOwner[]
@@ -107,7 +107,7 @@ export function TrackerClient({
       {/* Toolbar */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex bg-surface-2 rounded-md p-0.5 gap-0.5">
-          {([['tree', 'Tree'], ['board', 'Board'], ['list', 'List'], ['3d', '3D']] as [View, string][]).map(([v, label]) => (
+          {([['tree', 'Tree'], ['board', 'Board'], ['3d', '3D']] as [View, string][]).map(([v, label]) => (
             <button
               key={v}
               onClick={() => setView(v)}
@@ -150,15 +150,8 @@ export function TrackerClient({
             })
           )}
         />
-      ) : view === '3d' ? (
-        <GraphView hypotheses={hypotheses as unknown as HypothesisOST[]} />
       ) : (
-        <ListView
-          hypotheses={hypotheses as unknown as HypothesisOST[]}
-          teamMembers={teamMembers}
-          onOpportunityClick={handleCardClick}
-          onAddOpportunity={() => setModalOpen(true)}
-        />
+        <GraphView hypotheses={hypotheses as unknown as HypothesisOST[]} />
       )}
 
       {/* Agent prompt bar */}
@@ -190,155 +183,6 @@ export function TrackerClient({
   )
 }
 
-// ── List view ─────────────────────────────────────────────────
-
-const solutionStageColors: Record<string, string> = {
-  exploring: 'text-sky-700 bg-sky-50 border-sky-200',
-  design:    'text-violet-700 bg-violet-50 border-violet-200',
-  build:     'text-amber-700 bg-amber-50 border-amber-200',
-  testing:   'text-orange-700 bg-orange-50 border-orange-200',
-  shipped:   'text-emerald-700 bg-emerald-50 border-emerald-200',
-}
-
-const testStatusColors: Record<string, string> = {
-  planned:     'text-text-3 bg-surface border-border',
-  in_progress: 'text-amber-700 bg-amber-50 border-amber-200',
-  done:        'text-emerald-700 bg-emerald-50 border-emerald-200',
-}
-
-const activityTypeLabels: Record<string, string> = {
-  interview: 'Interview', survey: 'Survey', observation: 'Observation',
-  data_analysis: 'Data analysis', prototype_test: 'Prototype test',
-  feasibility_check: 'Feasibility check', other: 'Type not set',
-}
-
-function ListView({
-  hypotheses,
-  teamMembers,
-  onOpportunityClick,
-  onAddOpportunity,
-}: {
-  hypotheses: HypothesisOST[]
-  teamMembers: { id: string; full_name: string | null; role: string | null }[]
-  onOpportunityClick: (h: HypothesisWithOwner) => void
-  onAddOpportunity: () => void
-}) {
-  if (hypotheses.length === 0) {
-    return (
-      <div className="py-16 text-center text-[13px] text-text-3">
-        No opportunities yet.{' '}
-        <button onClick={onAddOpportunity} className="underline underline-offset-2 hover:text-text-2 transition-colors">
-          Create your first one.
-        </button>
-      </div>
-    )
-  }
-
-  return (
-    <div className="space-y-px rounded-xl border border-border-soft overflow-hidden">
-      {/* Header */}
-      <div className="grid grid-cols-[1fr_120px_100px_130px_80px] gap-0 bg-surface-2 border-b border-border">
-        {['Item', 'Stage / Status', 'Type', 'Owner / Assignee', 'Updated'].map((label) => (
-          <div key={label} className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-text-3">
-            {label}
-          </div>
-        ))}
-      </div>
-
-      {hypotheses.map((h, hi) => {
-        const solutions = (h.hypothesis_solutions ?? []).map((hs) => hs.solutions).filter((s): s is NonNullable<typeof s> => s !== null)
-
-        return (
-          <div key={h.id} className={cn(hi > 0 && 'border-t border-border-soft')}>
-            {/* Opportunity row */}
-            <div
-              onClick={() => onOpportunityClick(h)}
-              className="grid grid-cols-[1fr_120px_100px_130px_80px] items-center bg-surface hover:bg-emerald-50/30 cursor-pointer transition-colors border-l-[3px] border-l-emerald-500"
-            >
-              <div className="px-4 py-3 flex items-center gap-2 min-w-0">
-                <span className="text-[13px] font-semibold text-text-primary leading-snug line-clamp-1">{h.title}</span>
-                {h.created_by_agent && (
-                  <span className="shrink-0 font-mono text-[10px] text-text-3 border border-border px-1 py-0.5 rounded">✦ AI</span>
-                )}
-                <span className="shrink-0 ml-auto text-[10px] font-semibold uppercase tracking-[0.07em] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
-                  Opportunity
-                </span>
-              </div>
-              <div className="px-4 py-3">
-                <span className="text-[11px] font-medium px-1.5 py-0.5 rounded border text-emerald-700 bg-emerald-50 border-emerald-200 capitalize">
-                  {h.stage.replace(/_/g, ' ')}
-                </span>
-              </div>
-              <div className="px-4 py-3 text-[12px] text-text-3 capitalize">{h.confidence}</div>
-              <div className="px-4 py-3 text-[12px] text-text-2">{h.owner?.full_name ?? '—'}</div>
-              <div className="px-4 py-3 font-mono text-[11px] text-text-3">
-                {new Date(h.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              </div>
-            </div>
-
-            {/* Solution rows */}
-            {solutions.map((sol) => {
-              const tests = sol.testing_activities ?? []
-
-              return (
-                <div key={sol.id}>
-                  {/* Solution row */}
-                  <div className="grid grid-cols-[1fr_120px_100px_130px_80px] items-center bg-background hover:bg-sky-50/30 cursor-default transition-colors border-l-[3px] border-l-sky-500 border-t border-border-soft">
-                    <div className="px-4 pl-10 py-2.5 flex items-center gap-2 min-w-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0" />
-                      <span className="text-[12px] font-medium text-text-primary leading-snug line-clamp-1">{sol.title}</span>
-                      <span className="shrink-0 ml-auto text-[10px] font-semibold uppercase tracking-[0.07em] text-sky-700 bg-sky-50 border border-sky-200 px-1.5 py-0.5 rounded">
-                        Solution
-                      </span>
-                    </div>
-                    <div className="px-4 py-2.5">
-                      <span className={cn('text-[10px] font-medium px-1.5 py-0.5 rounded border capitalize', solutionStageColors[sol.stage] ?? 'text-text-3 bg-surface border-border')}>
-                        {sol.stage}
-                      </span>
-                    </div>
-                    <div className="px-4 py-2.5 text-[11px] text-text-3">{tests.length} test{tests.length !== 1 ? 's' : ''}</div>
-                    <div className="px-4 py-2.5" />
-                    <div className="px-4 py-2.5" />
-                  </div>
-
-                  {/* Test rows */}
-                  {tests.map((test) => {
-                    const assignee = teamMembers.find((m) => m.id === test.owner_id)?.full_name ?? null
-                    return (
-                      <div
-                        key={test.id}
-                        className="grid grid-cols-[1fr_120px_100px_130px_80px] items-center bg-background hover:bg-amber-50/20 transition-colors border-l-[3px] border-l-amber-400 border-t border-border-soft/60"
-                      >
-                        <div className="px-4 pl-16 py-2 flex items-center gap-2 min-w-0">
-                          <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
-                          <span className="text-[12px] text-text-primary line-clamp-1">{test.description ?? '(no description)'}</span>
-                        </div>
-                        <div className="px-4 py-2">
-                          <span className={cn('text-[10px] font-medium px-1.5 py-0.5 rounded border capitalize', testStatusColors[test.status] ?? testStatusColors.planned)}>
-                            {test.status.replace('_', ' ')}
-                          </span>
-                        </div>
-                        <div className="px-4 py-2 text-[11px] text-text-3">
-                          {activityTypeLabels[test.activity_type] ?? test.activity_type.replace(/_/g, ' ')}
-                        </div>
-                        <div className="px-4 py-2 text-[11px] text-text-2">
-                          {assignee ? (
-                            <span className="text-[10px] bg-surface-2 border border-border px-1.5 py-0.5 rounded-full">{assignee}</span>
-                          ) : '—'}
-                        </div>
-                        <div className="px-4 py-2" />
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            })}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 // ── Objectives bar ────────────────────────────────────────────
 
