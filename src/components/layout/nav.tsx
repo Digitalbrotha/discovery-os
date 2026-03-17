@@ -20,7 +20,7 @@ export default function Nav({ profile, isCompanyAdmin }: NavProps) {
     { href: '/tracker',  label: 'Tracker' },
     { href: '/roadmap',  label: 'Roadmap' },
     ...(isCompanyAdmin ? [{ href: '/company', label: 'Company' }] : []),
-    { href: '/settings', label: 'Settings' },
+    { href: '/settings', label: '⚙' },
   ]
 
   async function handleSignOut() {
@@ -39,6 +39,7 @@ export default function Nav({ profile, isCompanyAdmin }: NavProps) {
               <Link
                 key={link.href}
                 href={link.href}
+                title={link.label === '⚙' ? 'Settings' : undefined}
                 className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
                   pathname.startsWith(link.href)
                     ? 'bg-accent text-accent-foreground font-medium'
