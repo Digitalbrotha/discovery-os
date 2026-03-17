@@ -15,6 +15,7 @@ export type OSTTest = {
   description: string | null
   status: ActivityStatus
   owner_id: string | null
+  reference_url: string | null
   created_at: string
 }
 
@@ -443,6 +444,7 @@ function TestEditModal({
   const [status, setStatus] = useState<ActivityStatus>(test.status)
   const [learning, setLearning] = useState('')
   const [ownerId, setOwnerId] = useState<string>(test.owner_id ?? '')
+  const [referenceUrl, setReferenceUrl] = useState(test.reference_url ?? '')
   const [isPending, startTransition] = useTransition()
   const [mounted, setMounted] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -457,8 +459,9 @@ function TestEditModal({
         status,
         learning: learning.trim() || undefined,
         owner_id: ownerId || null,
+        reference_url: referenceUrl.trim() || null,
       })
-      onSaved({ id: test.id, description: description.trim() || null, activity_type: activityType, status, owner_id: ownerId || null })
+      onSaved({ id: test.id, description: description.trim() || null, activity_type: activityType, status, owner_id: ownerId || null, reference_url: referenceUrl.trim() || null })
     })
   }
 
@@ -514,6 +517,26 @@ function TestEditModal({
           <div className="space-y-1.5">
             <label className="block text-[11px] font-medium uppercase tracking-[0.06em] text-text-3">Learning</label>
             <textarea value={learning} onChange={(e) => setLearning(e.target.value)} placeholder="What did you learn from this test?" rows={3} className={cn(inputCls, 'resize-none leading-relaxed')} />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-[11px] font-medium uppercase tracking-[0.06em] text-text-3">Reference link</label>
+            <input
+              type="url"
+              value={referenceUrl}
+              onChange={(e) => setReferenceUrl(e.target.value)}
+              placeholder="https://…"
+              className={inputCls}
+            />
+            {referenceUrl.trim() && (
+              <a
+                href={referenceUrl.trim()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] text-sky-600 hover:underline"
+              >
+                ↗ Open link
+              </a>
+            )}
           </div>
         </div>
         {confirmDelete ? (

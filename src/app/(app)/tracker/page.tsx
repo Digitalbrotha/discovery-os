@@ -36,7 +36,7 @@ export default async function TrackerPage() {
             hypothesis_solutions(
               solutions(
                 id, title, description, stage, created_at,
-                testing_activities(id, activity_type, description, status, owner_id, created_at)
+                testing_activities(id, activity_type, description, status, owner_id, reference_url, created_at)
               )
             )
           `)

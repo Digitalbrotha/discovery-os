@@ -66,6 +66,7 @@ export async function updateTestingActivity({
   status,
   learning,
   owner_id,
+  reference_url,
 }: {
   test_id: string
   description?: string
@@ -73,6 +74,7 @@ export async function updateTestingActivity({
   status?: 'planned' | 'in_progress' | 'done'
   learning?: string
   owner_id?: string | null
+  reference_url?: string | null
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -84,6 +86,7 @@ export async function updateTestingActivity({
   if (status !== undefined) updates.status = status
   if (learning !== undefined) updates.learning = learning
   if (owner_id !== undefined) updates.owner_id = owner_id
+  if (reference_url !== undefined) updates.reference_url = reference_url
 
   const { error } = await supabase
     .from('testing_activities')
