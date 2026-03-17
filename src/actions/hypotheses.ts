@@ -33,6 +33,8 @@ interface CreateHypothesisInput {
   objective_id?: string         // optional: connect to objective on creation
   now_next_later?: 'now' | 'next' | 'later'
   created_by_agent?: boolean
+  habit_driver?: boolean
+  habit_driver_type?: string
 }
 
 export async function createHypothesis(input: CreateHypothesisInput) {
@@ -56,6 +58,8 @@ export async function createHypothesis(input: CreateHypothesisInput) {
       owner_id: input.owner_id ?? user.id,
       created_by: user.id,
       created_by_agent: input.created_by_agent ?? false,
+      habit_driver: input.habit_driver ?? false,
+      habit_driver_type: input.habit_driver_type ?? 'None',
     })
     .select()
     .single()

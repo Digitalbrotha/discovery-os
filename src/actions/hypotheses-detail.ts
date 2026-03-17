@@ -12,6 +12,8 @@ interface UpdateHypothesisDetailInput {
   owner_id?: string
   notes?: string
   test_types?: string[]
+  habit_driver?: boolean
+  habit_driver_type?: string
 }
 
 export async function updateHypothesisDetail(

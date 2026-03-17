@@ -20,6 +20,7 @@ interface NewHypothesisModalProps {
 
 const STAGES: Stage[] = ['captured','assumption_testing','solution_exploration','validated','invalidated','parked']
 const CONFIDENCES: Confidence[] = ['low', 'medium', 'high']
+const HABIT_TYPES = ['Meaningful', 'Empowerment', 'Socially', 'Curiosity', 'Avoidancy', 'Pride', 'Scarcity', 'Achievement']
 
 export function NewHypothesisModal({ open, onClose, objectives, currentUserId, teamMembers, teamId }: NewHypothesisModalProps) {
   const router = useRouter()
@@ -29,6 +30,8 @@ export function NewHypothesisModal({ open, onClose, objectives, currentUserId, t
   const [confidence, setConfidence] = useState<Confidence>('low')
   const [objectiveId, setObjectiveId] = useState('')
   const [ownerId, setOwnerId] = useState(currentUserId)
+  const [habitDriver, setHabitDriver] = useState(false)
+  const [habitDriverType, setHabitDriverType] = useState('Meaningful')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const titleRef = useRef<HTMLInputElement>(null)
@@ -43,6 +46,7 @@ export function NewHypothesisModal({ open, onClose, objectives, currentUserId, t
   function reset() {
     setTitle(''); setStatement(''); setStage('captured'); setConfidence('low')
     setObjectiveId(''); setOwnerId(currentUserId); setError(null)
+    setHabitDriver(false); setHabitDriverType('Meaningful')
   }
   function handleClose() { reset(); onClose() }
 
@@ -59,6 +63,8 @@ export function NewHypothesisModal({ open, onClose, objectives, currentUserId, t
         owner_id: ownerId || undefined,
         objective_id: objectiveId || undefined,
         team_id: teamId || undefined,
+        habit_driver: habitDriver,
+        habit_driver_type: habitDriver ? habitDriverType : 'None',
       })
       handleClose()
       window.location.reload()
@@ -109,6 +115,25 @@ export function NewHypothesisModal({ open, onClose, objectives, currentUserId, t
               <Field label="Owner">
                 <Select value={ownerId} options={ownerOptions} onChange={setOwnerId} />
               </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Habit driver">
+                <Select
+                  value={habitDriver ? 'yes' : 'no'}
+                  options={[{ value: 'no', label: 'No' }, { value: 'yes', label: 'Yes' }]}
+                  onChange={(v) => setHabitDriver(v === 'yes')}
+                />
+              </Field>
+              {habitDriver && (
+                <Field label="Habit type">
+                  <Select
+                    value={habitDriverType}
+                    options={HABIT_TYPES.map((t) => ({ value: t, label: t }))}
+                    onChange={setHabitDriverType}
+                  />
+                </Field>
+              )}
             </div>
 
             {error && (

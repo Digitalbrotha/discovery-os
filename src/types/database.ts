@@ -113,6 +113,8 @@ export interface Hypothesis {
   owner_id: string | null
   created_by: string | null
   created_by_agent: boolean
+  habit_driver: boolean
+  habit_driver_type: string
   created_at: string
   updated_at: string
 }

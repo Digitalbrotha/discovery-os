@@ -34,6 +34,11 @@ interface HypothesisDetailModalProps {
 
 type Tab = 'overview' | 'activities'
 
+const HABIT_DRIVER_TYPES = [
+  'Meaningful', 'Empowerment', 'Socially', 'Curiosity',
+  'Avoidancy', 'Pride', 'Scarcity', 'Achievement',
+]
+
 // ── Main component ───────────────────────────────────────────
 
 export function HypothesisDetailModal({
@@ -52,13 +57,17 @@ export function HypothesisDetailModal({
   const [connectedObjectiveIds, setConnectedObjectiveIds] = useState(initialConnectedObjectiveIds)
   const [isPending, startTransition] = useTransition()
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [habitDriver, setHabitDriver] = useState(hypothesis?.habit_driver ?? false)
+  const [habitDriverType, setHabitDriverType] = useState(hypothesis?.habit_driver_type ?? 'None')
 
   // Sync when hypothesis changes
   useEffect(() => {
     setActivities(initialActivities)
     setConnectedObjectiveIds(initialConnectedObjectiveIds)
     setConfirmDelete(false)
-  }, [initialActivities, initialConnectedObjectiveIds])
+    setHabitDriver(hypothesis?.habit_driver ?? false)
+    setHabitDriverType(hypothesis?.habit_driver_type ?? 'None')
+  }, [initialActivities, initialConnectedObjectiveIds, hypothesis])
 
   // Close on Escape
   useEffect(() => {
@@ -115,7 +124,7 @@ export function HypothesisDetailModal({
 
             {/* Meta row */}
             <div className="px-5 py-4 border-b border-border-soft">
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <MetaField label="Stage">
                   <EditableSelect
                     value={hypothesis.stage}
@@ -175,6 +184,58 @@ export function HypothesisDetailModal({
                     }}
                   />
                 </MetaField>
+              </div>
+
+              {/* Habit driver row */}
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <MetaField label="Habit driver">
+                  <EditableSelect
+                    value={habitDriver ? 'yes' : 'no'}
+                    options={[{ value: 'no', label: 'No' }, { value: 'yes', label: 'Yes' }]}
+                    onSave={async (val) => {
+                      const isHabit = val === 'yes'
+                      setHabitDriver(isHabit)
+                      if (!isHabit) setHabitDriverType('None')
+                      else if (habitDriverType === 'None') setHabitDriverType('Meaningful')
+                      startTransition(async () => {
+                        await updateHypothesisDetail(hypothesis.id, {
+                          habit_driver: isHabit,
+                          habit_driver_type: isHabit ? (habitDriverType === 'None' ? 'Meaningful' : habitDriverType) : 'None',
+                        })
+                      })
+                    }}
+                    renderValue={() => (
+                      <span className={cn(
+                        'text-[12px] font-medium px-2 py-0.5 rounded-full',
+                        habitDriver
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-surface-2 text-text-3 border border-border'
+                      )}>
+                        {habitDriver ? 'Yes' : 'No'}
+                      </span>
+                    )}
+                  />
+                </MetaField>
+
+                {habitDriver && (
+                  <MetaField label="Habit type">
+                    <EditableSelect
+                      value={habitDriverType}
+                      options={HABIT_DRIVER_TYPES.map((t) => ({ value: t, label: t }))}
+                      onSave={async (val) => {
+                        setHabitDriverType(val)
+                        startTransition(async () => {
+                          await updateHypothesisDetail(hypothesis.id, { habit_driver_type: val })
+                        })
+                      }}
+                      renderValue={() => (
+                        <span className="text-[12px] font-medium px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
+                          {habitDriverType}
+                        </span>
+                      )}
+                    />
+                  </MetaField>
+                )}
               </div>
 
               {/* Objectives */}
