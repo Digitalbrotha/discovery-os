@@ -14,10 +14,10 @@ import { fetchHypothesisDetail } from '@/actions/hypotheses-detail'
 import { createObjective, updateObjective, deleteObjective } from '@/actions/objectives'
 import { cn } from '@/lib/utils'
 import type { HypothesisWithOwner, Objective, TestingActivity, StageHistory } from '@/types/database'
-import type { HypothesisOST } from '@/components/hypothesis/ost-view'
+import type { HypothesisOST, OSTTest } from '@/components/hypothesis/ost-view'
 import type { TestCardData } from '@/components/hypothesis/test-board'
 
-type View = 'tree' | 'board' | '3d'
+type View = 'tree' | 'board' | '3d' | 'md'
 
 interface TrackerClientProps {
   hypotheses: HypothesisWithOwner[]
@@ -105,7 +105,7 @@ export function TrackerClient({
       {/* Toolbar */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex bg-surface-2 rounded-md p-0.5 gap-0.5">
-          {([['tree', 'Tree'], ['board', 'Board'], ['3d', '3D']] as [View, string][]).map(([v, label]) => (
+          {([['tree', 'Tree'], ['board', 'Board'], ['3d', '3D'], ['md', 'MD']] as [View, string][]).map(([v, label]) => (
             <button
               key={v}
               onClick={() => setView(v)}
@@ -148,6 +148,8 @@ export function TrackerClient({
             })
           )}
         />
+      ) : view === 'md' ? (
+        <MarkdownView hypotheses={hypotheses as unknown as HypothesisOST[]} objectives={objectives} teamMembers={teamMembers} />
       ) : (
         <GraphView hypotheses={hypotheses as unknown as HypothesisOST[]} />
       )}
@@ -186,6 +188,160 @@ export function TrackerClient({
   )
 }
 
+
+// ── Markdown view ─────────────────────────────────────────────
+
+const STATUS_EMOJI: Record<string, string> = {
+  planned: '⬜',
+  in_progress: '🔄',
+  done: '✅',
+}
+
+const STAGE_LABEL: Record<string, string> = {
+  captured: 'Captured',
+  assumption_testing: 'Assumption Testing',
+  solution_exploration: 'Solution Exploration',
+  validated: 'Validated',
+  invalidated: 'Invalidated',
+  parked: 'Parked',
+}
+
+const TYPE_LABEL: Record<string, string> = {
+  interview: 'Interview', survey: 'Survey', observation: 'Observation',
+  data_analysis: 'Data Analysis', prototype_test: 'Prototype Test',
+  feasibility_check: 'Feasibility Check', other: 'Type not set',
+}
+
+function buildMarkdown(
+  hypotheses: HypothesisOST[],
+  objectives: Pick<Objective, 'id' | 'title'>[],
+  teamMembers: { id: string; full_name: string | null }[],
+): string {
+  const date = new Date().toISOString().slice(0, 10)
+  const lines: string[] = []
+
+  lines.push(`# Discovery OS — Export`)
+  lines.push(`*Generated: ${date}*`)
+  lines.push('')
+
+  if (objectives.length > 0) {
+    lines.push(`## Objectives`)
+    objectives.forEach((o) => lines.push(`- ${o.title}`))
+    lines.push('')
+  }
+
+  lines.push(`## Opportunities`)
+  lines.push('')
+
+  hypotheses.forEach((h, hi) => {
+    const owner = h.owner?.full_name ?? 'Unassigned'
+    const stage = STAGE_LABEL[h.stage] ?? h.stage
+    const solutions = (h.hypothesis_solutions ?? []).map((hs) => hs.solutions).filter(Boolean) as NonNullable<HypothesisOST['hypothesis_solutions'][0]['solutions']>[]
+
+    lines.push(`### ${hi + 1}. ${h.title}`)
+    lines.push(`- **Stage:** ${stage}`)
+    lines.push(`- **Confidence:** ${h.confidence}`)
+    lines.push(`- **Owner:** ${owner}`)
+    if (h.statement) lines.push(`- **Statement:** ${h.statement}`)
+    lines.push('')
+
+    if (solutions.length === 0) {
+      lines.push(`*No solutions yet.*`)
+      lines.push('')
+      return
+    }
+
+    lines.push(`#### Solutions`)
+    lines.push('')
+
+    solutions.forEach((sol, si) => {
+      const tests = sol.testing_activities ?? []
+      lines.push(`##### ${hi + 1}.${si + 1} ${sol.title}`)
+      lines.push(`- **Stage:** ${sol.stage}`)
+      if (sol.description) lines.push(`- **Description:** ${sol.description}`)
+      lines.push('')
+
+      if (tests.length > 0) {
+        lines.push(`###### Assumptions`)
+        tests.forEach((t) => {
+          const emoji = STATUS_EMOJI[t.status] ?? '⬜'
+          const type = TYPE_LABEL[t.activity_type] ?? t.activity_type
+          const assignee = teamMembers.find((m) => m.id === (t as OSTTest).owner_id)?.full_name
+          const ref = (t as OSTTest).reference_url
+          let line = `- ${emoji} ${t.description ?? '(no description)'} — *${type}*`
+          if (assignee) line += ` — 👤 ${assignee}`
+          if (ref) line += `\n  - 🔗 [Reference](${ref})`
+          lines.push(line)
+        })
+        lines.push('')
+      }
+    })
+  })
+
+  return lines.join('\n')
+}
+
+function MarkdownView({
+  hypotheses,
+  objectives,
+  teamMembers,
+}: {
+  hypotheses: HypothesisOST[]
+  objectives: Pick<Objective, 'id' | 'title'>[]
+  teamMembers: { id: string; full_name: string | null; role: string | null }[]
+}) {
+  const [copied, setCopied] = useState(false)
+  const markdown = buildMarkdown(hypotheses, objectives, teamMembers)
+
+  function handleCopy() {
+    navigator.clipboard.writeText(markdown)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-[#2a2a2a] shadow-xl font-mono">
+      {/* Terminal title bar */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#1e1e1e] border-b border-[#2a2a2a]">
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+          <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
+          <span className="w-3 h-3 rounded-full bg-[#28c840]" />
+        </div>
+        <span className="text-[11px] text-[#666] tracking-wider">discovery-os — obsidian-export.md</span>
+        <button
+          onClick={handleCopy}
+          className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#2a2a2a] text-[#aaa] hover:text-white hover:bg-[#333] transition-colors border border-[#3a3a3a]"
+        >
+          {copied ? '✓ copied' : '⎘ copy'}
+        </button>
+      </div>
+
+      {/* Terminal body */}
+      <div className="bg-[#161616] px-6 py-5 overflow-x-auto max-h-[620px] overflow-y-auto">
+        <pre className="text-[12px] leading-relaxed whitespace-pre-wrap">
+          {markdown.split('\n').map((line, i) => {
+            let color = '#ccc'
+            if (line.startsWith('# ')) color = '#e2c08d'
+            else if (line.startsWith('## ')) color = '#89b4fa'
+            else if (line.startsWith('### ')) color = '#a6e3a1'
+            else if (line.startsWith('#### ')) color = '#74c7ec'
+            else if (line.startsWith('##### ')) color = '#cba6f7'
+            else if (line.startsWith('###### ')) color = '#f38ba8'
+            else if (line.startsWith('- **')) color = '#f9e2af'
+            else if (line.startsWith('- ✅')) color = '#a6e3a1'
+            else if (line.startsWith('- 🔄')) color = '#f9e2af'
+            else if (line.startsWith('- ⬜')) color = '#6c7086'
+            else if (line.startsWith('*')) color = '#6c7086'
+            return (
+              <span key={i} style={{ color }} className="block">{line || '\u00a0'}</span>
+            )
+          })}
+        </pre>
+      </div>
+    </div>
+  )
+}
 
 // ── Objectives bar ────────────────────────────────────────────
 
