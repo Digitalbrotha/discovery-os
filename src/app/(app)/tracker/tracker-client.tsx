@@ -108,7 +108,7 @@ export function TrackerClient({
           {([['tree', 'Tree'], ['board', 'Board'], ['3d', '3D'], ['md', 'MD']] as [View, string][]).map(([v, label]) => (
             <button
               key={v}
-              onClick={() => setView(v)}
+              onClick={() => { setView(v); if (v === 'md') router.refresh() }}
               className={cn(
                 'px-2.5 py-1 rounded text-[12px] font-medium transition-all duration-100',
                 view === v
