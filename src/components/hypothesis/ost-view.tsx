@@ -359,8 +359,14 @@ function SolutionEditModal({
 
   function handleDelete() {
     startTransition(async () => {
-      await deleteSolution({ solution_id: solution.id })
-      onDeleted()
+      try {
+        await deleteSolution({ solution_id: solution.id })
+        onDeleted()
+      } catch (e: unknown) {
+        if (e instanceof Error && e.message.includes('Demo')) {
+          alert('🏖️ Delete is on vacation in demo mode.')
+        } else throw e
+      }
     })
   }
 
@@ -476,8 +482,14 @@ function TestEditModal({
 
   function handleDelete() {
     startTransition(async () => {
-      await deleteTestingActivity({ test_id: test.id })
-      onDeleted(test.id)
+      try {
+        await deleteTestingActivity({ test_id: test.id })
+        onDeleted(test.id)
+      } catch (e: unknown) {
+        if (e instanceof Error && e.message.includes('Demo')) {
+          alert('🏖️ Delete is on vacation in demo mode.')
+        } else throw e
+      }
     })
   }
 

@@ -299,9 +299,15 @@ export function HypothesisDetailModal({
                 <div className="flex gap-2">
                   <button
                     onClick={() => startTransition(async () => {
-                      await deleteHypothesis({ hypothesis_id: hypothesis.id })
-                      onDeleted?.(hypothesis.id)
-                      onClose()
+                      try {
+                        await deleteHypothesis({ hypothesis_id: hypothesis.id })
+                        onDeleted?.(hypothesis.id)
+                        onClose()
+                      } catch (e: unknown) {
+                        if (e instanceof Error && e.message.includes('Demo')) {
+                          alert('🏖️ Delete is on vacation in demo mode.')
+                        } else throw e
+                      }
                     })}
                     disabled={isPending}
                     className="px-3.5 py-1.5 text-[13px] font-medium bg-red-600 text-white rounded-md hover:bg-red-500 disabled:opacity-40 transition-colors"

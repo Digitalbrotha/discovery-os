@@ -577,8 +577,14 @@ function ObjectiveRow({
       </span>
       <button
         onClick={() => startTransition(async () => {
-          await deleteObjective({ id: objective.id })
-          onDeleted(objective.id)
+          try {
+            await deleteObjective({ id: objective.id })
+            onDeleted(objective.id)
+          } catch (e: unknown) {
+            if (e instanceof Error && e.message.includes('Demo')) {
+              alert('🏖️ Delete is on vacation in demo mode.')
+            } else throw e
+          }
         })}
         disabled={isPending}
         className="opacity-0 group-hover:opacity-100 text-[11px] text-text-3 hover:text-stage-invalid-fg transition-all disabled:opacity-40"
