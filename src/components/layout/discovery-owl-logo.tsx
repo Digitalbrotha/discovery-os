@@ -22,7 +22,7 @@ export function DiscoveryOwlLogo({ className, variant = 'nav' }: DiscoveryOwlLog
             isLogin ? 'text-[11px] uppercase tracking-[0.1em] text-text-3' : 'text-[9px] uppercase tracking-[0.12em] text-text-3',
           )}
         >
-          Discovery
+          Discvr
         </span>
         <span
           className={cn(

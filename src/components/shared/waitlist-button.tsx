@@ -61,7 +61,7 @@ export function WaitlistButton() {
                     Join the waitlist
                   </h2>
                   <p className="text-[13px] text-text-3 leading-snug">
-                    Be the first to know when DiscoveryOwl is ready for everyone.
+                    Be the first to know when Discvr Owl is ready for everyone.
                   </p>
                 </div>
 

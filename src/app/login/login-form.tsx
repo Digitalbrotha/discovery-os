@@ -237,7 +237,7 @@ export default function LoginForm({ next }: { next?: string }) {
       </button>
 
       <p className="text-center text-sm text-muted-foreground">
-        New to DiscoveryOwl?{' '}
+        New to Discvr Owl?{' '}
         <button
           type="button"
           onClick={() => switchMode('signup')}

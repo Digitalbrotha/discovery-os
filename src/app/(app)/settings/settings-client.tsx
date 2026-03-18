@@ -252,10 +252,10 @@ function IntegrationsTab() {
       <div className="bg-surface border border-border-soft rounded-xl p-5 space-y-2">
         <div className="flex items-center gap-2">
           <span className="text-base">✦</span>
-          <p className="text-[13px] font-semibold text-text-primary">Connect DiscoveryOwl to Claude Code</p>
+          <p className="text-[13px] font-semibold text-text-primary">Connect Discvr Owl to Claude Code</p>
         </div>
         <p className="text-[12px] text-text-2 leading-relaxed">
-          By adding DiscoveryOwl as an MCP server, Claude Code can read and update your opportunities,
+          By adding Discvr Owl as an MCP server, Claude Code can read and update your opportunities,
           solutions, and assumption tests directly from your terminal — no copy-pasting needed.
         </p>
       </div>

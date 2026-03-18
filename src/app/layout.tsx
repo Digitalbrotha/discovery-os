@@ -16,10 +16,10 @@ const dmMono = DM_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'DiscoveryOwl',
+  title: 'Discvr Owl',
   description: 'Visualize and map your discovery work...',
   openGraph: {
-    title: 'DiscoveryOwl',
+    title: 'Discvr Owl',
     description: 'Visualize and map your discovery work...',
     url: 'https://www.discvrowl.com/',
     type: 'website',
