@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { assertNotDemo } from '@/lib/demo-guard'
 
 export async function createObjective(input: { title: string; key_result?: string; team_id: string }) {
   const supabase = await createClient()
@@ -45,6 +46,7 @@ export async function deleteObjective({ id }: { id: string }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')
+  assertNotDemo(user)
 
   const { error } = await supabase.from('objectives').delete().eq('id', id)
   if (error) throw new Error(error.message)

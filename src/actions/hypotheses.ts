@@ -3,11 +3,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { Stage, Confidence, Persona, ActivityType, ActivityStatus } from '@/types/database'
+import { assertNotDemo } from '@/lib/demo-guard'
 
 export async function deleteHypothesis({ hypothesis_id }: { hypothesis_id: string }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')
+  assertNotDemo(user)
 
   const { error } = await supabase.from('hypotheses').delete().eq('id', hypothesis_id)
   if (error) throw new Error(error.message)

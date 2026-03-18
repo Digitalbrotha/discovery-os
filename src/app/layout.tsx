@@ -17,7 +17,14 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: 'DiscoveryOwl',
-  description: 'Continuous discovery for product trios',
+  description: 'Visualize and map your discovery work...',
+  openGraph: {
+    title: 'DiscoveryOwl',
+    description: 'Visualize and map your discovery work...',
+    url: 'https://www.discvrowl.com/',
+    type: 'website',
+    images: [{ url: 'https://www.discvrowl.com/your-og-image.png' }],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

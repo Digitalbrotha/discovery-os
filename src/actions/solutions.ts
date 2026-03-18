@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { assertNotDemo } from '@/lib/demo-guard'
 
 export async function updateSolution({
   solution_id,
@@ -121,6 +122,7 @@ export async function deleteSolution({ solution_id }: { solution_id: string }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')
+  assertNotDemo(user)
 
   const { error } = await supabase.from('solutions').delete().eq('id', solution_id)
   if (error) throw new Error(error.message)
@@ -132,6 +134,7 @@ export async function deleteTestingActivity({ test_id }: { test_id: string }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')
+  assertNotDemo(user)
 
   const { error } = await supabase.from('testing_activities').delete().eq('id', test_id)
   if (error) throw new Error(error.message)
