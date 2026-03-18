@@ -274,7 +274,7 @@ export default function LoginForm({ next }: { next?: string }) {
             />
             <span className="relative flex items-center justify-center gap-2">
               <span className="text-base leading-none">✦</span>
-              {loading ? 'Loading…' : 'View demo'}
+              {loading ? 'Loading…' : 'Test it first'}
               <span className="text-base leading-none">✦</span>
             </span>
           </button>
